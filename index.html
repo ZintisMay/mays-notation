@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .centered {
+        padding: 50px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #canvas {
+        /* height: 100px;
+        width: 100px; */
+        outline: 1px dotted red;
+      }
+    </style>
+  </head>
+
+  <body>
+    <form action="" id="numberForm">
+      <input type="text" name="val" id="numberInput" />
+      <input type="submit" id="numberSubmit" />
+    </form>
+    <div class="centered">
+      <canvas id="canvas" height="100px" width="100px"></canvas>
+    </div>
+  </body>
+
+  <script>
+    const numberInput = document.getElementById("numberInput");
+    const numberSubmit = document.getElementById("numberSubmit");
+    const numberForm = document.getElementById("numberForm");
+    const canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    ctx.lineWidth = 2;
+
+    numberForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      resetCanvas();
+      drawCenterBit(); //draws the little 'v'
+
+      //   get form data
+      const data = Object.fromEntries(new FormData(e.target).entries());
+      console.log(data);
+      const val = Number(data.val);
+
+      if (typeof val === "number") {
+        const bin = convertDecimalToBinaryString(val);
+        console.log(bin);
+
+        // This step helps match the order of the binary numerals with the ascending line values.
+        const binInOrder = bin.split("").reverse();
+        binInOrder.forEach((val, index) => {
+          if (val === "1") {
+            const lineSet = lineArray[index];
+            drawLine(lineSet);
+          }
+        });
+      }
+    });
+
+    function drawLine(dest) {
+      let start = dest.slice(0, 2);
+      let end = dest.slice(2);
+      ctx.beginPath();
+      ctx.moveTo(...start);
+      ctx.lineTo(...end);
+      ctx.stroke();
+    }
+
+    function drawCenterBit() {
+      ctx.beginPath();
+      ctx.moveTo(40, 45);
+      ctx.lineTo(50, 60);
+      ctx.lineTo(60, 45);
+      ctx.stroke();
+    }
+
+    function resetCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // These are the line coordinates startX, startY, endX, endY for all the inner spokes
+    const innerLineArray = [
+      [50, 50, 50, 0],
+      [50, 50, 100, 0],
+      [50, 50, 100, 50],
+      [50, 50, 100, 100],
+      [50, 50, 50, 100],
+      [50, 50, 0, 100],
+      [50, 50, 0, 50],
+      [50, 50, 0, 0],
+    ];
+
+    // And the same for the outer edge lines
+    const outerLineArray = [
+      [50, 1, 99, 1],
+      [99, 1, 99, 50],
+      [99, 50, 99, 99],
+      [99, 99, 50, 99],
+      [50, 99, 1, 99],
+      [1, 99, 1, 50],
+      [1, 50, 1, 1],
+      [1, 1, 50, 1],
+    ];
+
+    const lineArray = [...innerLineArray, ...outerLineArray];
+
+    // https://stackoverflow.com/questions/7410063/how-can-i-listen-to-the-form-submit-event-in-javascript
+    function convertDecimalToBinaryString(dec) {
+      return (dec >>> 0).toString(2);
+    }
+  </script>
+</html>
